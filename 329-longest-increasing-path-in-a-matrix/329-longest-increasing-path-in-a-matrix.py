@@ -1,29 +1,25 @@
 class Solution:
     def longestIncreasingPath(self, matrix: List[List[int]]) -> int:
-        # this is a 2d dynamic programming problem
-        h = len(matrix)
-        w = len(matrix[0])
-        mem = [[1]*w for i in range(h)]
+                
+        lens = [[0]*len(matrix[0]) for i in range(len(matrix))]
         
-        path = 1
-        # every iteration, if you find a cell that is greater than a neighbor, 
-        # set the neighbor to max(neighbor, cell+1)
-        self.change = True
-        while self.change:
-            self.change = False
-            newmem = mem
-            for row in range(h):
-                for col in range(w):
-                    # check all neighbors
-                    for dx, dy in [(0,1), (0,-1), (1,0), (-1,0)]:
-                        ny = row+dy
-                        nx = col+dx
-                        if 0 <= ny < h and 0 <= nx < w:
-                            if matrix[ny][nx] < matrix[row][col]:
-                                if newmem[ny][nx] <= mem[row][col]:
-                                    self.change = True
-                                    newmem[ny][nx] = mem[row][col]+1
-                                    path = max(path, newmem[ny][nx])
-            mem = newmem
-        return path
-                    
+        def dfs(matrix, i, j, prev):
+            if 0 <= i < len(matrix) and 0 <= j < len(matrix[i]):
+                if matrix[i][j] > prev:
+                    if lens[i][j] != 0:
+                        return lens[i][j]
+                    ret = max([1+dfs(matrix, i-1, j, matrix[i][j]), 
+                                1+dfs(matrix, i+1, j, matrix[i][j]), 
+                                1+dfs(matrix, i, j-1, matrix[i][j]), 
+                                1+dfs(matrix, i, j+1, matrix[i][j])])
+                    lens[i][j] = ret
+                    return ret
+                
+                return 0
+            return 0
+        
+        for i in range(len(lens)):
+            for j in range(len(lens[i])):
+                dfs(matrix, i, j, -1)
+                
+        return max([max(lens[i]) for i in range(len(lens))])
